@@ -1,0 +1,26 @@
+{
+  "name": "covid_website",
+  "version": "1.0.0",
+  "description": "vithack submission",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "author": "Divesh",
+  "license": "git moISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "connect-redis": "^5.0.0",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "jspdf": "^2.1.1",
+    "mongoose": "^5.10.8",
+    "nodemailer": "^6.4.13",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^6.0.1",
+    "path": "^0.12.7"
+  }
+}

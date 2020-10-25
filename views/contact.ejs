@@ -1,0 +1,107 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/css/helpline.css">
+        <script src="https://kit.fontawesome.com/b18734ebf9.js" crossorigin="anonymous"></script>
+    </head>
+
+    <body onload="gettext()">
+        <nav>
+            
+            <ul>
+                <li style="margin-left: 11%; text-transform: uppercase; color: #2c365d; font-weight: bolder;float: left;font-size: x-large;"><a href="/">COVID CARE</a></li>
+                <div style="float: right;margin-right: 13%;">
+                    <li><a href="/hosdash">Beds</a></li>
+                    <li><a href="/notification">Notifications</a></li>
+                    <li><a href="/contact">Helpline</a></li>
+                    <li><a href="/dash">Dashboard</a></li>
+                    <li><a href="/analytics">Analytics</a></li>
+                    <% if(!currentUser){ %>
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/signup">Signup</a></li>
+                    <%	} else { %>
+                    <li><a href="/logout">Logout</a></li>
+                    <%	} %>	
+                </div>
+               
+            </ul>
+        </nav>
+        <br>
+
+        <div class="container">
+            <h1>Contact & Helpline Information</h1>
+            <div class="card">
+                <h3 style="text-align: center;">All India Helpline</h3>
+                <p id="num" style="text-align: center;"></p>
+
+                <ul class="links"> 
+                    <li><a id='media'href=""><img src="/assets/12.png"></a></li>
+                    <li><a id='facebook' href=""><img src="/assets/13.png"></a></li>
+                    <li><a id='email' href=""><img src="/assets/14.png"></a></li>
+                    <li><a id='twitter' href=""><img src="/assets/15.png"></a></li>
+                </ul>
+         </div>
+            <div class="form">
+                    <input type="text" id='search' placeholder="Enter the State or Union  Territory you want to search" >
+            </div>
+            <div id='table' class="table">
+
+            </div>
+    
+        </div>
+
+    </body>
+</html>
+<script>
+    function gettext(){
+        fetch("https://api.rootnet.in/covid19-in/contacts")
+        .then(function(res){
+          return res.json();
+        })
+        .then(function(data){
+            var x="";
+          
+            document.getElementById('media').setAttribute("href",data.data.contacts.primary.media[0]);
+            document.getElementById('facebook').setAttribute('href',data.data.contacts.primary.facebook);
+            document.getElementById('email').setAttribute('href',data.data.contacts.primary.email);
+            document.getElementById('twitter').setAttribute('href',data.data.contacts.primary.twitter);
+            var tollfree=data.data.contacts.primary.number-tollfree;
+            document.getElementById('num').textContent="Number:"+data.data.contacts.primary.number+"Toll Free:"+data.data.contacts.primary['number-tollfree'];
+        
+            data.data.contacts.regional.forEach(state => {
+                x+="<tr><td>"+state.loc+"</td><td>"+state.number+"</td></tr>"
+                
+            });
+            x="<table><tr><th>States and Union Territories.</th><th>Helpline Number</th></tr>"+x+"</table>"
+            document.getElementById('table').innerHTML=x;
+        })
+    }
+    document.getElementById('search').addEventListener('keyup', function() {
+         
+            fetch("https://api.rootnet.in/covid19-in/contacts")
+        .then(function(res){
+          return res.json();
+        })
+        .then(function(data){
+            var x="";
+            var f=0;
+           
+            data.data.contacts.regional.forEach(state => {
+                if( document.getElementById('search').value.toLowerCase()==state.loc.toLowerCase())
+               {
+                
+                x+="<tr><td>"+state.loc+"</td><td>"+state.number+"</td></tr>";
+                x="<table><tr><th>States and Union Territories.</th><th>Helpline Number</th></tr>"+x+"</table>"
+                document.getElementById('table').innerHTML=x;
+                f=1;
+               } 
+                
+            });
+            if(f==0)
+            gettext();
+            
+            
+        })
+            
+        }
+    );
+</script>

@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/css/donate.css">
+    </head>
+
+    <body>
+        <nav>
+            
+            <ul>
+                <li style="margin-left: 11%; text-transform: uppercase; color: #2c365d; font-weight: bolder;float: left;font-size: x-large;"><a href="/">COVID CARE</a></li>
+                <div style="float: right;margin-right: 13%;">
+                    <li><a href="/hosdash">Beds</a></li>
+                    <li><a href="/notification">Notifications</a></li>
+                    <li><a href="/contact">Helpline</a></li>
+                    <li><a href="/dash">Dashboard</a></li>
+                    <li><a href="/analytics">Analytics</a></li>
+                    <% if(!currentUser){ %>
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/signup">Signup</a></li>
+                    <%	} else { %>
+                    <li><a href="/logout">Logout</a></li>
+                    <%	} %>	
+                </div>
+               
+            </ul>
+        </nav>
+       
+		
+		
+<div class="ocontainer">
+	<h1>People in Need</h1>
+	<p style="text-align: justify;">
+       Donate your plasma . Save a Life.
+		</p>
+	<div class="container">
+		
+        <% appl.forEach(function(a){
+            %>
+		<a href="/donate/<%= a._id %>" class="card">
+				<img src="/assets/sign.jpg" style="object-fit: cover;" width="100%">
+					<h4>
+						<%=a.name%> 
+                    </h4>
+                    <h4> <%=a.location%></h4>
+                    <h4>
+                        <%=a.bloodgroup%> 
+                    </h4>
+				</a>
+		<%
+		});%>
+			</div>
+			
+			
+		</div>  
+      
+</body>
+</html>

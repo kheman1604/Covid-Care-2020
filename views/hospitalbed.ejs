@@ -1,0 +1,108 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/css/hbed.css">
+        <script src="https://kit.fontawesome.com/b18734ebf9.js" crossorigin="anonymous"></script>
+    </head>
+
+    <body onload="gettext()">
+        <nav>
+            
+            <ul>
+                <li style="margin-left: 11%; text-transform: uppercase; color: #2c365d; font-weight: bolder;float: left;font-size: x-large;"><a href="/">COVID CARE</a></li>
+                <div style="float: right;margin-right: 13%;">
+                    <li><a href="/hosdash">Beds</a></li>
+                    <li><a href="/notification">Notifications</a></li>
+                    <li><a href="/contact">Helpline</a></li>
+                    <li><a href="/dash">Dashboard</a></li>
+                    <li><a href="/analytics">Analytics</a></li>
+                    <% if(!currentUser){ %>
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/signup">Signup</a></li>
+                    <%	} else { %>
+                    <li><a href="/logout">Logout</a></li>
+                    <%	} %>	
+                </div>
+               
+            </ul>
+        </nav>
+        <br>
+
+        <div class="container">
+            <h1>Hospitals & beds</h1>
+            <div class="card">
+                <h3 style="text-align: center;font-size: xx-large;">Summary</h3>
+                <p>Rural Hospitals: <span id='rh'></span> &emsp;Rural Beds:<span id='rb'></span></p>
+                <p>Uraban Hospitals: <span id='uh'></span>&emsp; Urban Beds:<span id='ub'></span></p>
+                <p>Total Hospitals: <span id='th'></span> &emsp;Total Beds:<span id='tb'></span></p>
+
+
+               
+         </div>
+            <div class="form">
+                    <input type="text" id='search' placeholder="Enter the State or Union  Territory you want to search" >
+            </div>
+            <div id='table' class="table">
+
+            </div>
+    
+        </div>
+
+    </body>
+</html>
+<script>
+    function gettext(){
+        fetch(" https://api.rootnet.in/covid19-in/hospitals/beds")
+        .then(function(res){
+          return res.json();
+        })
+        .then(function(data){
+            var x="";
+          document.getElementById('rh').textContent=data.data.summary.ruralHospitals;
+          document.getElementById('rb').textContent=data.data.summary.ruralBeds;
+          document.getElementById('uh').textContent=data.data.summary.urbanHospitals;
+          document.getElementById('ub').textContent=data.data.summary.urbanBeds;
+          document.getElementById('th').textContent=data.data.summary.totalHospitals;
+          document.getElementById('tb').textContent=data.data.summary.totalBeds;
+
+        
+            data.data.regional.forEach(hbed => {
+                var d=new Date(hbed.asOn);
+                x+="<tr><td>"+hbed.state+"</td><td>"+hbed.ruralHospitals+"</td><td>"+hbed.ruralBeds+"</td><td>"+hbed.urbanHospitals+"</td><td>"+hbed.urbanBeds+"</td><td>"+hbed.totalHospitals+"</td><td>"+hbed.totalBeds+"</td><td>"+(d.getDay()+1)+"/"+(d.getMonth()+1)+"/"+d.getFullYear()+"  "+d.getHours()+":"+d.getMinutes()+"GMT</td></tr>";
+                
+            });
+            x="<table><tr><th>State</th><th>Rural Hospitals</th><th>Rural Beds</th><th>Urban Hospitals</th><th>Urban Beds</th><th>Total Hospitals</th><th>Total Beds</th><th>Last Updated</th></tr>"+x+"</table>";
+            document.getElementById('table').innerHTML=x;
+        })
+    }
+    document.getElementById('search').addEventListener('keyup', function() {
+         
+         fetch("https://api.rootnet.in/covid19-in/hospitals/beds")
+     .then(function(res){
+       return res.json();
+     })
+     .then(function(data){
+         var x="";
+         var f=0;
+        
+         data.data.regional.forEach(hbed => {
+             if( document.getElementById('search').value.toLowerCase()==hbed.state.toLowerCase())
+            {
+                var d=new Date(hbed.asOn)
+                x+="<tr><td>"+hbed.state+"</td><td>"+hbed.ruralHospitals+"</td><td>"+hbed.ruralBeds+"</td><td>"+hbed.urbanHospitals+"</td><td>"+hbed.urbanBeds+"</td><td>"+hbed.totalHospitals+"</td><td>"+hbed.totalBeds+"</td><td>"+(d.getDay()+1)+"/"+(d.getMonth()+1)+"/"+d.getFullYear()+"  "+d.getHours()+":"+d.getMinutes()+"GMT</td></tr>";
+                x="<table><tr><th>State</th><th>Rural Hospitals</th><th>Rural Beds</th><th>Urban Hospitals</th><th>Urban Beds</th><th>Total Hospitals</th><th>Total Beds</th><th>Last Updated</th></tr>"+x+"</table>";
+             document.getElementById('table').innerHTML=x;
+             f=1;
+            } 
+             
+         });
+         if(f==0)
+         gettext();
+         
+         
+     })
+         
+     }
+ );
+   
+
+</script>

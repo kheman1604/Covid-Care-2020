@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/css/plasmahome.css">
+    </head>
+
+    <body>
+        <nav>
+            
+            <ul>
+                <li style="margin-left: 11%; text-transform: uppercase; color: #2c365d; font-weight: bolder;float: left;font-size: x-large;"><a href="/">COVID CARE</a></li>
+                <div style="float: right;margin-right: 13%;">
+                    <li><a href="/hosdash">Beds</a></li>
+                    <li><a href="/notification">Notifications</a></li>
+                    <li><a href="/contact">Helpline</a></li>
+                    <li><a href="/dash">Dashboard</a></li>
+                    <li><a href="/analytics">Analytics</a></li>
+                    <% if(!currentUser){ %>
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/signup">Signup</a></li>
+                    <%	} else { %>
+                    <li><a href="/logout">Logout</a></li>
+                    <%	} %>	
+                </div>
+               
+            </ul>
+        </nav>
+       
+
+        <div class="container">
+             <h1>Plasma Dashboard</h1>
+
+
+            <a href="/plasmareq">
+               
+                <div class="card1">
+                    <img src="/assets/requestp.jpg" alt="">
+                    <h3>Request Plasma</h3>
+                </div>
+            </a>
+        <a href="/donate">
+            <div class="card2">
+                <img src="/assets/donatep.png" alt="">
+                <h3>Donate Plasma</h3>
+            </div>
+        </a>
+            
+        </div>
+
+    </body>
+</html>

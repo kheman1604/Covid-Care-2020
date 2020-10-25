@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/css/donor.css">
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+        
+    </head>
+    <body>
+        <nav>
+            
+            <ul>
+                <li style="margin-left: 11%; text-transform: uppercase; color: #2c365d; font-weight: bolder;float: left;font-size: x-large;"><a href="/">COVID CARE</a></li>
+                <div style="float: right;margin-right: 13%;">
+                    <li><a href="/hosdash">Beds</a></li>
+                    <li><a href="/notification">Notifications</a></li>
+                    <li><a href="/contact">Helpline</a></li>
+                    <li><a href="/dash">Dashboard</a></li>
+                    <li><a href="/analytics">Analytics</a></li>
+                    <% if(!currentUser){ %>
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/signup">Signup</a></li>
+                    <%	} else { %>
+                    <li><a href="/logout">Logout</a></li>
+                    <%	} %>	
+                </div>
+               
+            </ul>
+        </nav>
+
+        <div class="container">
+            <div class="left">
+                <img src="/assets/donatep2.png" alt="">
+            </div>
+            <div class="right">
+            <h1>Donate Plasma</h1>
+            <button class="mic" onclick="hear()"><img src="/assets/mic.png" alt="" srcset=""></button>
+            <button class="loc" onclick="load()"> <img src="/assets/location.png" alt=""></button>
+            <form action="/donate/<%=appl._id %>/applied" method="POST">
+                <input type="text" name="donor[name]" placeholder="Name" required class="inname"><br><br>
+                <input type="email" name="donor[email]" placeholder="Email-Id" required><br><br>
+                <input type="text" name="donor[phone]" placeholder="Phone Number" required><br><br>
+                <input type="text" name="donor[location]" placeholder="Location" class="geoloc" required><br><br>
+                
+                
+                <button>Submit</button>
+            </form>
+            </div>
+        </div>
+        
+        <script>
+
+            var api = "https://fcc-weather-api.glitch.me/api/current?"; 
+            function load(){
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        getLocation();
+                    });
+                }
+                else{
+                    alert('Browser not supported');
+                }
+            }
+
+            function getLocation() {
+                $.get("https://ipinfo.io?token=728a197543471f", function(response) {
+                    document.querySelector('.geoloc').setAttribute("value",response.city + " , " + response.region + " , " +response.country);
+                }, "jsonp")
+                }
+
+
+
+                function hear(){
+                var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+                var recognition = new SpeechRecognition();
+
+                recognition.onstart = function() {
+                    document.querySelector('.inname').setAttribute('value','listening...')  ;
+                };
+
+                recognition.onspeechend = function() {
+                    document.querySelector('.inname').setAttribute('value','')  ;
+                    recognition.stop();
+                };
+                recognition.onresult = function(event) {
+                    var transcript = event.results[0][0].transcript;
+                    var confidence = event.results[0][0].confidence;
+                    document.querySelector('.inname').setAttribute('value',transcript)  ;
+                    output.classList.remove(".mic");
+                };
+                
+              
+                 recognition.start();
+                }
+        </script>
+        
+    </body>
+</html>

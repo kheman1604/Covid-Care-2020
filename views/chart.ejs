@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/chart1.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.3/jspdf.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                dataType: "json",
+                url: "https://abhipadhy.github.io/objects/covid.json",
+                method: "GET",
+                success: function(response) {
+                    var count1 = [];
+                    var date1 = [];
+
+                    /*=-=-=-=-=-=REduce to Deceased -=-=-=-=-=-=*/
+                    var result = response.filter(function(obj) {
+                        return obj.status == "Deceased";
+
+                    });
+                    console.log(result);
+                    var newresult = [];
+
+                    result.reduce(function(respObj, date) {
+                        if (!respObj[date.reportedOn]) {
+                            respObj[date.reportedOn] = {
+                                Date: date.reportedOn,
+                                Count: 1,
+                                State: date.state,
+                                Gender:date.gender
+                            };
+                            newresult.push(respObj[date.reportedOn])
+                        } else {
+                            respObj[date.reportedOn].Count++;
+                        }
+                        return respObj;
+                    }, {});
+                    console.log(newresult);
+                    for (var i in newresult) {
+                        date1.push(newresult[i].Date);
+                        count1.push(newresult[i].Count);
+                    }
+
+                    /*=--=-=-=Extracting the Start and End Date for the Filter-=-=-=-=-*/
+
+                    var startdate;
+                    var enddate;
+
+                    var countnew = [];
+                    var datenew = [];
+
+                    $("#startdate").change(function() {
+                        var date = new Date($('#startdate').val());
+                        day = date.getDate();
+                        if (day < 10) {
+                            day = "0" + day;
+                        }
+                        month = date.getMonth() + 1;
+                        if (month < 10) {
+                            month = "0" + month;
+                        }
+                        year = date.getFullYear();
+                        $("#hdnstart").html([year, month, day].join('-'));
+                        startdate = Date.parse($("#hdnstart").text());
+
+                        console.log(startdate);
+                    });
+                    var e = [];
+                    $("")
+
+                    $("#enddate").change(function() {
+                        var date = new Date($('#enddate').val());
+                        day = date.getDate();
+                        if (day < 10) {
+                            day = "0" + day;
+                        }
+                        month = date.getMonth() + 1;
+                        if (month < 10) {
+                            month = "0" + month;
+                        }
+                        year = date.getFullYear();
+                        $("#hdnend").html([year, month, day].join('-'));
+                        enddate = Date.parse($("#hdnend").text());
+
+                        e = newresult.filter(function(obj1) {
+                            console.log(Date.parse(obj1.Date));
+                            return (Date.parse(obj1.Date) >= (startdate) && Date.parse(obj1.Date) <= (enddate));
+                        });
+                        console.log(e);
+
+                        for (var i in e) {
+                            datenew.push(e[i].Date);
+                            countnew.push(e[i].Count);
+                        }
+                        console.log(datenew);
+
+
+                    });
+
+                    /*=-=-=-= Filter With States -=-=-=-=-*/
+                    var newdate2 = [];
+                    var newcount2 = [];
+                    var s;
+
+                    $("#stateupdate").click(function() {
+                        updatechart();
+                        var inputstate = $("#state").val();
+                        s = e.filter(function(obj1) {
+                            return obj1.State.localeCompare(inputstate) == 0;
+                        });
+                        console.log(s);
+
+                        for (var i in s) {
+                            newdate2.push(s[i].Date);
+                            newcount2.push(s[i].Count);
+                        }
+
+                        updatechartwithstates();
+                        console.log(s);
+                    });
+
+                    function updatechartwithstates() {
+                        chardata.datasets[0].data = newcount2;
+                        bargraph.update();
+                    }
+
+                    /*=-=-=-=-=-=-Filter With States End =-=-=-=-=-=*/
+                    /*==-=-=-=-=-=Filter With Age-=-=-=-=-==-=-=-=-=*/
+                    var a;
+                    $("#age").change(function() {
+                        var agesel = $("#age").val();
+                        var newresult2 = [];
+
+                        result.reduce(function(respObj, date) {
+                            if (!respObj[date.ageEstimate]) {
+                                respObj[date.ageEstimate] = {
+                                    Age: date.ageEstimate,
+                                    Count: 1,
+                                    State: date.state,
+                                    Date: date.reportedOn
+                                };
+                                newresult2.push(respObj[date.ageEstimate])
+                            } else {
+                                respObj[date.ageEstimate].Count++;
+                            }
+                            return respObj;
+                        }, {});
+                        /*==-=-=-=-Sorting the Array=-=-=-=*/
+                        newresult2.sort((a, b) => {
+                            return a.Age - b.Age;
+                        });
+
+                        var newage = [];
+                        var agecount = [];
+                        /*=-=-=-=-Function for Age Group=-=-=-*/
+                        function getagegroup(a, b) {
+                            var agegroup1 = newresult2.filter(function(obj) {
+                                return obj.Age > parseFloat(a) && obj.Age < parseFloat(b);
+                            });
+                            return agegroup1;
+                        }
+                        if (agesel == '0') {
+                            var x = getagegroup(0, 10);
+                            getagevalue(x);
+                            getcountvalue(x);
+                            updatechartwithage();
+                        }
+                        if (agesel == '1') {
+                            var x = getagegroup(10, 20);
+                            getagevalue(x);
+                            getcountvalue(x);
+                            updatechartwithage();
+                        }
+                        if (agesel == '2') {
+                            var x = getagegroup(20, 30);
+                            getagevalue(x);
+                            getcountvalue(x);
+                            updatechartwithage();
+                        }
+                        if (agesel == '3') {
+                            var x = getagegroup(30, 40);
+                            getagevalue(x);
+                            getcountvalue(x);
+                            updatechartwithage();
+                        }
+                        if (agesel == '4') {
+                            var x = getagegroup(40, 50);
+                            getagevalue(x);
+                            getcountvalue(x);
+                            updatechartwithage();
+                        }
+                        if (agesel == '5') {
+                            var x = getagegroup(50, 60);
+                            getagevalue(x);
+                            getcountvalue(x);
+                            updatechartwithage();
+                        }
+                        if (agesel == '6') {
+                            var x = getagegroup(60, 70);
+                            getagevalue(x);
+                            getcountvalue(x);
+                            updatechartwithage();
+                        }
+                        if (agesel == '7') {
+                            var x = newresult2.filter(function(obj) {
+                                return obj.Age > 70;
+                            });
+                            getagevalue(x);
+                            getcountvalue(x);
+                            updatechartwithage();
+                        }
+
+                        function getagevalue(x) {
+
+                            for (var i in x) {
+                                newage.push(x[i].Age);
+                            }
+
+                        }
+
+                        function getcountvalue(x) {
+                            for (var i in x) {
+                                agecount.push(x[i].Count);
+                            }
+
+                        }
+                        /*-=-=-=-=-=-Filter with Age End Here =-=-=-=-=*/
+                        function updatechartwithage() {
+                            chardata.datasets[0].data = agecount;
+                            chardata.labels = newage;
+                            bargraph.update();
+                        }
+
+                    });
+                    /*==-=-=-=-=-=Filter With Age End-=-=-=-=-==-=-=-=-=*/
+                    /*=-=-=-=-=-=-=Filter With Gender-=-=-=-=-=*/
+                    $("#gender").change(function() {
+                        var newresult3 = [];
+                        result.reduce(function(respObj, date) {
+                            if (!respObj[date.gender]) {
+                                respObj[date.gender] = {
+                                    Count: 1,
+                                    Gender:date.gender
+                                };
+                                newresult3.push(respObj[date.gender])
+                            } else {
+                                respObj[date.gender].Count++;
+                            }
+                            return respObj;
+                        }, {});
+                        console.log(newresult3);
+                        var gendersel=$("#gender").val();
+                        var Date = [];
+                        var gendercount = [];
+                        var g=[];
+                         if(gendersel=="male")
+                         {
+                            g = newresult.filter(function(obj1){
+                            return obj1.Gender=="male";
+                            });
+                            getdate(g);
+                            getcount(g);
+                            updatechartwithgender();
+                                
+                        }else if(gendersel=="female"){
+                            g = newresult.filter(function(obj1) {
+                            return obj1.Gender=="female";
+                            });
+                            getdate(g);
+                            getcount(g);
+                             updatechartwithgender()
+                            
+                        }else{
+                            g = newresult.filter(function(obj1) {
+                            return (obj1.Gender!="male"&&obj1.Gender!="female");
+                            });
+                            console.log(g);
+                            getdate(g);
+                            getcount(g);
+                            updatechartwithgender()
+                        }
+                        function getdate(x)
+                        {
+                            for (var i in x) {
+                                Date.push(x[i].Date);
+                            }
+
+                        }
+                        console.log(Date);
+                         function getcount(x)
+                        {
+                            for (var i in x) {
+                                gendercount.push(x[i].Count);
+                            }
+
+                        }
+                        function updatechartwithgender() {
+                            chardata.datasets[0].data =gendercount ;
+                            chardata.labels = Date;
+                            bargraph.update();
+                        }
+
+                        
+                        
+                    });
+                    var chardata = {
+                        labels: date1,
+                        datasets: [{
+                            label: 'Deceased',
+                            backgroundColor: "#f2f2f0",
+                            pointRadius: "4",
+                            borderColor:"#9ab3f5",
+                            pointHoverRadius: "6",
+                            pointBackgroundColor: "#f2f2f0",
+                            pointHoverBackgroundColor: "#ff5e3a",
+                            hoverBackgroundColor: "#2C365D",
+                            data: count1,
+                        }]
+                    }
+
+                    var ctx = $("#canvas");
+
+                    var bargraph = new Chart(ctx, {
+                        type: 'line',
+                        data: chardata
+                    });
+
+
+                    $("#update").click(function() {
+                        updatechart();
+                    });
+
+                    function updatechart() {
+                        chardata.datasets[0].data = countnew;
+                        chardata.labels=datenew;
+                        bargraph.update();
+                    }
+
+                },
+                error: function(response) {
+                    console.log(response);
+                }
+
+            });
+        });
+
+    </script>
+    <style>
+
+        canvas{
+            background-color:rgb(245, 245, 245);
+        }
+        canvas:hover {
+            box-shadow: 0 16px 30px 0 rgba(0, 0, 0, 0.507);
+            transition: 0.7s;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <nav>
+            
+        <ul>
+            <li style="margin-left: 11%; text-transform: uppercase; color: #2c365d; font-weight: bolder;float: left;font-size: x-large;"><a href="/">COVID CARE</a></li>
+            <div style="float: right;margin-right: 13%;margin-top: 0.5%;">
+                <li><a href="/hosdash">Beds</a></li>
+                <li><a href="/notification">Notifications</a></li>
+                <li><a href="/contact">Helpline</a></li>
+                <li><a href="/dash">Dashboard</a></li>
+                <li><a href="/analytics">Analytics</a></li>
+                <% if(!currentUser){ %>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/signup">Signup</a></li>
+                <%	} else { %>
+                <li><a href="/logout">Logout</a></li>
+                <%	} %>	
+            </div>
+           
+        </ul>
+    </nav>
+ 
+    <div class="container">
+        <h1>Deceased Analytics</h1>
+        <a href="/comp" style="margin-left: 37%;">CLICK HERE FOR COVID 19 ANALYTICS</a><br><br>
+        <center><canvas id="canvas" style="max-width:65%; max-height:1000px;  padding : 20px; border-radius:10px; "></canvas></center>
+                    <br>
+                    <br><br>
+
+                    <div class="one">
+                        Start Date:<input type="date" id="startdate" placeholder="Start Date(dd-mm-yyyy)">
+                        <span id="hdnstart" style="display:none;"></span>
+                        End Date<input type="date" id="enddate">
+                        <span id="hdnend" style="display:none;"></span>
+                        <button id="update">Update</button>
+                    </div>
+                    <br>
+                    <div class="two">
+                        State Name : <input type="text" id="state" placeholder="Enter State Name here"> 
+                        <button id="stateupdate">Update</button>
+                    </div>
+                    <br>
+                    <div class="three">
+                        Age Group:
+                        <select id="age">
+                            <option value="none">Select from the following</option>
+                            <option value="0">0-9</option>
+                            <option value="1">10-19</option>
+                            <option value="2">20-29</option>
+                            <option value="3">30-39</option>
+                            <option value="4">40-49</option>
+                            <option value="5">50-59</option>
+                            <option value="6">60-69</option>
+                            <option value="7">70+</option>
+                        </select>
+                        Gender:
+                        <select id="gender">
+                            <option value="none">Select from the following</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                    <br><br>
+                    <button id="download" >Download Graph</button>
+
+                  
+                    <br>
+                    <div class="form1">
+                        <form action="/analytics" method="POST">
+                            <input type="text" name="mail" placeholder="Enter Mail-Id here" class="mail">
+                             <input type="text" id='graph' name="graph" style="display: none;" value="">
+                            
+                            <button >Send As Mail</button>
+                        </form>
+                    </div>
+                  
+
+    </div>
+
+  
+        
+   
+</body>
+
+</html>
+<script>
+    document.querySelector('#download').addEventListener('click',function(){
+        var imgData = document.getElementById('canvas').toDataURL("image/png", 1.0);
+        var pdf = new jsPDF();
+
+        pdf.addImage(imgData, 'PNG', 5, 80 ,200,90);
+        pdf.save("download.pdf");
+        console.log(imgData);
+        }, false);
+    document.querySelector('.mail').addEventListener('focus',function()
+        {
+        var imgData = document.getElementById('canvas').toDataURL("image/png", 1.0);
+       document.getElementById('graph').value=String(imgData);
+    });
+</script>

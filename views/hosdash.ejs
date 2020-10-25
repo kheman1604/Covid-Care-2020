@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/css/hosdash.css">
+    </head>
+
+    <body>
+        <nav>
+            
+            <ul>
+                <li style="margin-left: 11%; text-transform: uppercase; color: #2c365d; font-weight: bolder;float: left;font-size: x-large;"><a href="/">COVID CARE</a></li>
+                <div style="float: right;margin-right: 13%;">
+                    <li><a href="/hosdash">Beds</a></li>
+                    <li><a href="/notification">Notifications</a></li>
+                    <li><a href="/contact">Helpline</a></li>
+                    <li><a href="/dash">Dashboard</a></li>
+                    <li><a href="/analytics">Analytics</a></li>
+                    <% if(!currentUser){ %>
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/signup">Signup</a></li>
+                    <%	} else { %>
+                    <li><a href="/logout">Logout</a></li>
+                    <%	} %>	
+                </div>
+               
+            </ul>
+        </nav>
+        
+
+        <div class="container">
+            <h1>Hospital Dahboard</h1>
+            <a href="/mbed">   <div class="card1">
+                <img src="/assets/medical.jpg" alt="">
+                <h4>Medical college & Beds</h4>
+            </div></a>
+         <a href="/hbed"><div class="card2">
+            <img src="/assets/hospital.png" alt="">
+            <h3>Hospital & Beds</h3>
+        </div></a>
+            
+        </div>
+
+    </body>
+</html>

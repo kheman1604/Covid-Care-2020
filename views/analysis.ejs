@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+   <link rel="stylesheet" href="/css/stub.css">
+    <title>API</title>
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                dataType: "json",
+                url: "https://abhipadhy.github.io/objects/covid.json",
+                method: "GET",
+                success: function(response) {
+                    var count1 = [];
+                    var date1 = [];
+
+                    /*=-=-=-=-=-=Reduce to Deceased -=-=-=-=-=-=*/
+                    var result = response.filter(function(obj) {
+                        return obj.status == "Deceased";
+
+                    });
+                    var newresult = [];
+
+                    result.reduce(function(respObj, date) {
+                        if (!respObj[date.reportedOn]) {
+                            respObj[date.reportedOn] = {
+                                Date: date.reportedOn,
+                                Count: 1
+                            };
+                            newresult.push(respObj[date.reportedOn])
+                        } else {
+                            respObj[date.reportedOn].Count++;
+                        }
+                        return respObj;
+                    }, {});
+                    
+                    
+                    
+                    for (var i in newresult) {
+                        date1.push(newresult[i].Date);
+                        count1.push(newresult[i].Count);
+                       }
+                    
+                    var chardata = {
+                        labels: date1,
+                        datasets: [{
+                            label: 'Deceased',
+                            data: count1,
+                        }]
+                    }
+
+                    var ctx = $("#canvas");
+
+                    var bargraph = new Chart(ctx, {
+                        type: 'line',
+                        data: chardata
+                    });
+                },
+                error: function(response) {
+                    console.log(response);
+                }
+
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <nav>
+            
+        <ul>
+            <li style="margin-left: 11%; text-transform: uppercase; color: #2c365d; font-weight: bolder;float: left;font-size: x-large;"><a href="/">COVID CARE</a></li>
+            <div style="float: right;margin-right: 13%;">
+                <li><a href="/hosdash">Beds</a></li>
+                <li><a href="/notification">Notifications</a></li>
+                <li><a href="/contact">Helpline</a></li>
+                <li><a href="/dash">Dashboard</a></li>
+                <li><a href="/analytics">Analytics</a></li>
+                <% if(!currentUser){ %>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/signup">Signup</a></li>
+                <%	} else { %>
+                <li><a href="/logout">Logout</a></li>
+                <%	} %>	
+            </div>
+           
+        </ul>
+    </nav>
+    
+    <div class="container">
+    
+    <canvas id="canvas" style="max-width:800px; max-height:800px; margin-left: auto;margin-right: auto;margin-top: 4%;"></canvas>
+
+    Start Date : <input type="date" id="startdate">
+    <span id="hdnstart" style="display:none;"></span>
+    End Date : <input type="date" id="enddate">
+    <span type="hidden" id="hdnend"></span>
+    </div>
+</body>
+
+</html>

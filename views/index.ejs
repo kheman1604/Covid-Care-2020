@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <title></title>
+        <link rel="stylesheet" href="/css/index.css">
+    </head>
+    <body>
+        <div class="top">
+            <h1 class="HEADER">COVID CARE</h1>
+
+        </div>
+        <div class="bottom">
+            <h1 class="head">About Us</h1>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse dolor inventore placeat ipsam! Rerum, perferendis blanditiis eius molestias id labore culpa possimus cum quos laboriosam nihil aliquid consectetur dignissimos obcaecati?Lorem, ipsum dolor sit amet consectetur adipisicing elit. Dolorum tempora vitae deserunt, dicta commodi eaque cupiditate voluptates voluptatum consequuntur quia voluptatibus laboriosam, facere recusandae iure dolores accusamus exercitationem. Accusantium, sequi.</p>
+
+            <div class="button">
+                <a href="/login"><button>Login</button></a>
+                <a href="/signup"><button>Sign-Up</button></a>
+            </div>
+            
+
+        </div>
+
+        <script>
+            var para= document.querySelector('p');
+            var head= document.querySelector('.head');
+            var button= document.querySelector('button');
+
+            document.addEventListener('scroll', () => {
+                var scroll_position = window.scrollY;
+                if (scroll_position > 300) {
+                    head.style.opacity = "0.9";
+                    head.style.transition="0.3s";
+                    para.style.opacity = "0.9";
+                    para.style.transition="1.2s";
+
+                } else if (scroll_position < 300){
+                    head.style.opacity = "0";
+                    head.style.transition="0.1s";
+                    para.style.opacity = "0";
+                    para.style.transition="1.2s";
+
+                } else if(scroll_position > 450)
+                {
+                    button.style.opacity="0.9";
+                    button.style.transition="1s";
+                }
+
+               
+            });
+        </script>
+    </body>
+</html>

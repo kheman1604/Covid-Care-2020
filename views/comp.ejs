@@ -1,0 +1,221 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="/css/comp.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.3/jspdf.min.js"></script>
+
+        <script>
+            $(document).ready(function() {
+                $.ajax({
+                    dataType: "json",
+                    url: "https://abhipadhy.github.io/objects/covid.json",
+                    method: "GET",
+                    success: function(response) {
+                        console.log(response);
+                        var count1 = [];
+                        var date1 = [];
+    
+                        /*=-=-=-=-=-=REduce to Deceased -=-=-=-=-=-=*/
+                        var result = response.filter(function(obj) {
+                            /*=-=-Result : Deceased=-=-*/
+                            return obj.status == "Deceased";
+    
+                        });
+                        var resultrecovered = response.filter(function(obj) {
+                            return obj.status == "Recovered";
+    
+                        });
+                        var resultHospitalized = response.filter(function(obj) {
+                            return obj.status == "Hospitalized";
+    
+                        });
+                        console.log(resultrecovered);
+                        console.log(resultHospitalized);
+                        console.log(result);
+                        var newresult = [];
+                        var newresultrecovered = [];
+                        var newresulthospitalized = [];
+                        result.reduce(function(respObj, date) {
+                            if (!respObj[date.reportedOn]) {
+                                respObj[date.reportedOn] = {
+                                    Date: date.reportedOn,
+                                    Count: 1,
+                                    State: date.state,
+                                    Gender: date.gender
+                                };
+                                newresult.push(respObj[date.reportedOn])
+                            } else {
+                                respObj[date.reportedOn].Count++;
+                            }
+                            return respObj;
+                        }, {});
+                        console.log(newresult);
+                        for (var i in newresult) {
+                            date1.push(newresult[i].Date);
+                            count1.push(newresult[i].Count);
+                        }
+                        var countrecoverd = [];
+                        var daterecoverd = [];
+                        resultrecovered.reduce(function(respObj, date) {
+                            if (!respObj[date.reportedOn]) {
+                                respObj[date.reportedOn] = {
+                                    Date: date.reportedOn,
+                                    Count: 1,
+                                    State: date.state,
+                                    Gender: date.gender
+                                };
+                                newresultrecovered.push(respObj[date.reportedOn])
+                            } else {
+                                respObj[date.reportedOn].Count++;
+                            }
+                            return respObj;
+                        }, {});
+                        console.log(newresultrecovered);
+                        for (var i in newresultrecovered) {
+                            daterecoverd.push(newresultrecovered[i].Date);
+                            countrecoverd.push(newresultrecovered[i].Count);
+                        }
+                        var counthospitalized = [];
+                        var datehospitalized = [];
+                        resultHospitalized.reduce(function(respObj, date) {
+                            if (!respObj[date.reportedOn]) {
+                                respObj[date.reportedOn] = {
+                                    Date: date.reportedOn,
+                                    Count: 1,
+                                    State: date.state,
+                                    Gender: date.gender
+                                };
+                                newresulthospitalized.push(respObj[date.reportedOn])
+                            } else {
+                                respObj[date.reportedOn].Count++;
+                            }
+                            return respObj;
+                        }, {});
+                        console.log(newresulthospitalized);
+                        for (var i in newresulthospitalized) {
+                            datehospitalized.push(newresulthospitalized[i].Date);
+                            counthospitalized.push(newresulthospitalized[i].Count);
+                        }
+                        console.log(datehospitalized);
+                        console.log(counthospitalized);
+    
+                        var chardata = {
+                            labels: datehospitalized,
+                            datasets: [{
+                                label: 'Deceased',
+                                backgroundColor: "#f2f2f0",
+                                pointRadius: "4",
+                                pointHoverRadius: "6",
+                                borderColor:"#fca652",
+                                pointBackgroundColor: "#f2f2f0",
+                                pointHoverBackgroundColor: "#ff5e3a",
+                                hoverBackgroundColor: "#2C365D",
+                                data: count1,
+                            }, {
+                                label: 'Hospitalized',
+                                pointRadius: "4",
+                                pointHoverRadius: "6",
+                                pointBackgroundColor: "#f2f2f0",
+                                borderColor:"#9ab3f5",
+                                pointHoverBackgroundColor: "#ff5e3a",
+                                hoverBackgroundColor: "#2C365D",
+                                data: counthospitalized,
+                            },{
+                                label: 'Recovered',
+                                borderColor:"#821752",
+                                data: countrecoverd,
+                            }]
+                        }
+    
+                        var ctx = $("#canvas");
+    
+                        var bargraph = new Chart(ctx, {
+                            type: 'line',
+                            data: chardata,
+                             options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            max:2000,
+                                            min: 0,
+                                            stepSize:200
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+                        
+    
+                        $("#update").click(function() {
+                            updatechart();
+                        });
+    
+                        function updatechart() {
+                            chardata.datasets[0].data = countnew;
+                            bargraph.update();
+                        }
+    
+                    },
+                    error: function(response) {
+                        console.log(response);
+                    }
+    
+                });
+            });
+    
+        </script>
+
+        <style>
+            canvas{
+            background-color:rgb(245, 245, 245);
+        }
+        canvas:hover {
+            box-shadow: 0 16px 30px 0 rgba(0, 0, 0, 0.507);
+            transition: 0.7s;
+        }
+        </style>
+
+    </head>
+
+    <body>     
+        <nav>
+            
+        <ul>
+            <li style="margin-left: 11%; text-transform: uppercase; color: #2c365d; font-weight: bolder;float: left;font-size: x-large;"><a href="/">COVID CARE</a></li>
+            <div style="float: right;margin-right: 13%;">
+                <li><a href="/hosdash">Beds</a></li>
+                <li><a href="/notification">Notifications</a></li>
+                <li><a href="/contact">Helpline</a></li>
+                <li><a href="/dash">Dashboard</a></li>
+                <li><a href="/analytics">Analytics</a></li>
+                <% if(!currentUser){ %>
+                <li><a href="/login">Login</a></li>
+                <li><a href="/signup">Signup</a></li>
+                <%	} else { %>
+                <li><a href="/logout">Logout</a></li>
+                <%	} %>	
+            </div>
+           
+        </ul>
+    </nav>
+        
+
+        <div class="container">
+        <h1>COVID 19 Analytics</h1><br>
+        <center><canvas id="canvas" style="max-width:65%; max-height:1000px;  padding : 20px; border-radius:10px; "></canvas></center>
+        <br>
+        <button id="download">Download Graph</button>
+        </div>
+        <script>
+            document.querySelector('#download').addEventListener('click',function(){
+            var imgData = document.getElementById('canvas').toDataURL("image/png", 1.0);
+            var pdf = new jsPDF();
+
+            pdf.addImage(imgData, 'PNG', 5, 80 ,200,90);
+            pdf.save("download.pdf");
+            }, false);
+        </script>
+    </body>
+</html>
